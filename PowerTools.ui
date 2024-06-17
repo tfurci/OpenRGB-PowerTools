@@ -2,11 +2,22 @@
 <ui version="4.0">
  <class>PowerTools</class>
  <widget class="QWidget" name="PowerTools">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1111</width>
+    <height>680</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>PowerTools Configuration</string>
+      <string>PowerTools Settings</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
@@ -50,7 +61,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile</string>
+       <string>Set Profile (select profile bellow)</string>
       </property>
      </item>
     </widget>
@@ -60,13 +71,22 @@
    </item>
    <item>
     <widget class="QCheckBox" name="checkBoxLock">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>On Lock</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxLockAction">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <item>
       <property name="text">
        <string>Turn off LEDs</string>
@@ -74,16 +94,23 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile</string>
+       <string>Set Profile (select profile bellow)</string>
       </property>
      </item>
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxLockProfile"/>
+    <widget class="QComboBox" name="comboBoxLockProfile">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="checkBoxReturnFromLock">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>On Return from Lock</string>
      </property>
@@ -91,6 +118,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxReturnFromLockAction">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <item>
       <property name="text">
        <string>Turn off LEDs</string>
@@ -98,16 +128,23 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile</string>
+       <string>Set Profile (select profile bellow)</string>
       </property>
      </item>
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxReturnFromLockProfile"/>
+    <widget class="QComboBox" name="comboBoxReturnFromLockProfile">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="checkBoxShutdown">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>On Shutdown</string>
      </property>
@@ -115,6 +152,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxShutdownAction">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <item>
       <property name="text">
        <string>Turn off LEDs</string>
@@ -122,16 +162,23 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile</string>
+       <string>Set Profile (select profile bellow)</string>
       </property>
      </item>
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxShutdownProfile"/>
+    <widget class="QComboBox" name="comboBoxShutdownProfile">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="checkBoxMonitorShutdown">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>On Monitor Shutdown</string>
      </property>
@@ -139,6 +186,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxMonitorShutdownAction">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <item>
       <property name="text">
        <string>Turn off LEDs</string>
@@ -146,16 +196,23 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile</string>
+       <string>Set Profile (select profile bellow)</string>
       </property>
      </item>
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxMonitorShutdownProfile"/>
+    <widget class="QComboBox" name="comboBoxMonitorShutdownProfile">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="checkBoxMonitorComeback">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>On Monitor Comeback</string>
      </property>
@@ -163,6 +220,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="comboBoxMonitorComebackAction">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <item>
       <property name="text">
        <string>Turn off LEDs</string>
@@ -170,13 +230,17 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile</string>
+       <string>Set Profile (select profile bellow)</string>
       </property>
      </item>
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBoxMonitorComebackProfile"/>
+    <widget class="QComboBox" name="comboBoxMonitorComebackProfile">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="saveButton">

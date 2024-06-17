@@ -16,10 +16,8 @@ SleepSet::~SleepSet()
 
 void SleepSet::start()
 {
-    printf("test2");
     if (!running)
     {
-        printf("test");
         running = true;
         QCoreApplication::instance()->installNativeEventFilter(this); // Install native event filter
     }
