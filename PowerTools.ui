@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PowerTools</class>
+ <widget class="QWidget" name="PowerTools">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>PowerTools Configuration</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxSleep">
+     <property name="text">
+      <string>On Sleep</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxSleepAction">
+     <item>
+      <property name="text">
+       <string>Turn off LEDs</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Set Profile</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxSleepProfile"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxReturnFromSleep">
+     <property name="text">
+      <string>On Return from Sleep</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxReturnFromSleepAction">
+     <item>
+      <property name="text">
+       <string>Turn off LEDs</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Set Profile</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxReturnFromSleepProfile"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxLock">
+     <property name="text">
+      <string>On Lock</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxLockAction">
+     <item>
+      <property name="text">
+       <string>Turn off LEDs</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Set Profile</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxLockProfile"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxReturnFromLock">
+     <property name="text">
+      <string>On Return from Lock</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxReturnFromLockAction">
+     <item>
+      <property name="text">
+       <string>Turn off LEDs</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Set Profile</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxReturnFromLockProfile"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxShutdown">
+     <property name="text">
+      <string>On Shutdown</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxShutdownAction">
+     <item>
+      <property name="text">
+       <string>Turn off LEDs</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Set Profile</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxShutdownProfile"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxMonitorShutdown">
+     <property name="text">
+      <string>On Monitor Shutdown</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxMonitorShutdownAction">
+     <item>
+      <property name="text">
+       <string>Turn off LEDs</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Set Profile</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxMonitorShutdownProfile"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxMonitorComeback">
+     <property name="text">
+      <string>On Monitor Comeback</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxMonitorComebackAction">
+     <item>
+      <property name="text">
+       <string>Turn off LEDs</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Set Profile</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxMonitorComebackProfile"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="saveButton">
+     <property name="text">
+      <string>Save Configuration</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
