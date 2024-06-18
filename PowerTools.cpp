@@ -10,7 +10,7 @@ OpenRGBPluginInfo PowerTools::GetPluginInfo()
 
     OpenRGBPluginInfo info;
     info.Name         = "Power Tools";
-    info.Description  = "Allo allo";
+    info.Description  = "Add ability to enable/disable, set custom profiles on sleep/wake windows event!";
     info.Version  = VERSION_STRING;
     info.Commit  = GIT_COMMIT_ID;
     info.URL  = "https://gitlab.com/tfurci/openrgb-powertools";
@@ -114,7 +114,7 @@ void PowerTools::LoadSettings(Ui::PowerTools& ui)
 
     // Check if the settings file exists
     if (!QFile(settingsFilePath).exists()) {
-        qDebug() << "Settings file does not exist. Creating with default values.";
+        qDebug() << "[PowerTools] Settings file does not exist. Creating with default values.";
         SaveSettings(ui); // Create the settings file with default values
         return;
     }
@@ -162,7 +162,7 @@ void PowerTools::LoadSettings(Ui::PowerTools& ui)
     ui.comboBoxMonitorComebackProfile->setCurrentText(settings.value("Profile", "OFF").toString());
     settings.endGroup();
 
-    qDebug() << "Settings loaded from:" << settingsFilePath;
+    qDebug() << "[PowerTools] Settings loaded from:" << settingsFilePath;
 }
 
 void PowerTools::SaveSettings(Ui::PowerTools& ui)
@@ -213,5 +213,5 @@ void PowerTools::SaveSettings(Ui::PowerTools& ui)
     settings.endGroup();
 
     settings.sync(); // Ensure all data is written to file
-    qDebug() << "Settings saved to:" << settingsFilePath;
+    qDebug() << "[PowerTools] Settings saved to:" << settingsFilePath;
 }

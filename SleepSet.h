@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QAbstractNativeEventFilter>
 #include <QDebug>
+#include <QThread>
 #include <windows.h>  // Include Windows-specific headers
 
 class SleepSet : public QObject, public QAbstractNativeEventFilter

@@ -37,7 +37,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile</string>
+       <string>Set Profile (select profile below)</string>
       </property>
      </item>
     </widget>
@@ -61,7 +61,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile (select profile bellow)</string>
+       <string>Set Profile (select profile below)</string>
       </property>
      </item>
     </widget>
@@ -94,7 +94,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile (select profile bellow)</string>
+       <string>Set Profile (select profile below)</string>
       </property>
      </item>
     </widget>
@@ -128,7 +128,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile (select profile bellow)</string>
+       <string>Set Profile (select profile below)</string>
       </property>
      </item>
     </widget>
@@ -162,7 +162,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile (select profile bellow)</string>
+       <string>Set Profile (select profile below)</string>
       </property>
      </item>
     </widget>
@@ -196,7 +196,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile (select profile bellow)</string>
+       <string>Set Profile (select profile below)</string>
       </property>
      </item>
     </widget>
@@ -230,7 +230,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Set Profile (select profile bellow)</string>
+       <string>Set Profile (select profile below)</string>
       </property>
      </item>
     </widget>

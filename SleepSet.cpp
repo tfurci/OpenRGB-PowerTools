@@ -49,6 +49,12 @@ QString readSettingFromQSettings(const QString& group, const QString& key)
     return value;
 }
 
+// EXAMPLE .INI
+//  [Sleep], [ReturnFromSleep], [Lock], [ReturnFromLock], [Shutdown], [MonitorShutdown], [MonitorComeback]
+//      Enabled=true
+//      Action=0
+//      Profile=OFF
+
 bool SleepSet::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
 {
     Q_UNUSED(result);
@@ -56,6 +62,8 @@ bool SleepSet::nativeEventFilter(const QByteArray &eventType, void *message, lon
     if (eventType == "windows_generic_MSG")
     {
         MSG* msg = static_cast<MSG*>(message);
+        QString sleep = readSettingFromQSettings("Sleep", "Enabled");
+        QString returnfromsleep = readSettingFromQSettings("ReturnFromSleep", "Enabled");
 
         switch (msg->message)
         {
@@ -64,11 +72,15 @@ bool SleepSet::nativeEventFilter(const QByteArray &eventType, void *message, lon
             {
             case PBT_APMSUSPEND:
                 qDebug() << "[PowerTools] System is about to sleep (suspend).";
+                if (sleep == "true"){
                 handleSleepAction();
+                }
                 break;
             case PBT_APMRESUMESUSPEND:
                 qDebug() << "[PowerTools] System resumed from sleep (suspend).";
+                if (returnfromsleep == "true") {
                 handleWakeAction();
+                }
                 break;
             }
             break;
@@ -81,7 +93,7 @@ bool SleepSet::nativeEventFilter(const QByteArray &eventType, void *message, lon
 void SleepSet::handleSleepAction()
 {
     if (!PowerTools::RMPointer) {
-        qDebug() << "ResourceManager pointer is null.";
+        qDebug() << "[PowerTools] ResourceManager pointer is null.";
         return;
     }
 
@@ -106,7 +118,7 @@ void SleepSet::handleSleepAction()
 void SleepSet::handleWakeAction()
 {
     if (!PowerTools::RMPointer) {
-        qDebug() << "ResourceManager pointer is null.";
+        qDebug() << "[PowerTools] ResourceManager pointer is null.";
         return;
     }
 
@@ -130,7 +142,7 @@ void SleepSet::handleWakeAction()
 void SleepSet::turnOffLEDs()
 {
     if (!PowerTools::RMPointer) {
-        qDebug() << "ResourceManager pointer is null.";
+        qDebug() << "[PowerTools] ResourceManager pointer is null.";
         return;
     }
 
@@ -138,13 +150,15 @@ void SleepSet::turnOffLEDs()
     {
         controller->SetAllLEDs(ToRGBColor(0, 0, 0));  // Set LEDs to off
         controller->UpdateLEDs();  // Update LEDs
+        QThread::msleep(10);  // Delay for 10 milliseconds
+        controller->UpdateLEDs();  // Update LEDs
     }
 }
 
 void SleepSet::loadProfile(const QString& profileName)
 {
     if (!PowerTools::RMPointer) {
-        qDebug() << "ResourceManager pointer is null.";
+        qDebug() << "[PowerTools] ResourceManager pointer is null.";
         return;
     }
 
@@ -156,8 +170,9 @@ void SleepSet::loadProfile(const QString& profileName)
         // Update LEDs for each RGB controller
         for (RGBController* controller : PowerTools::RMPointer->GetRGBControllers())
         {
-            controller->UpdateLEDs();
-            qDebug() << "[PowerTools] Updating LEDs.";
+            controller->UpdateLEDs();  // Update LEDs
+            QThread::msleep(10);  // Delay for 10 milliseconds
+            controller->UpdateLEDs();  // Update LEDs
         }
 
         qDebug() << "[PowerTools] Loaded profile" << profileName << ".";
