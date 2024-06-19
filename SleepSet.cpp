@@ -98,7 +98,7 @@ void SleepSet::handleSleepAction()
     }
 
     QString action = readSettingFromQSettings("Sleep", "Action");
-    printf("Sleep Action: %s\n", action.toUtf8().constData());
+    //printf("[PowerTools] Sleep Action: %s\n", action.toUtf8().constData());
 
     if (action == "0")
     {
