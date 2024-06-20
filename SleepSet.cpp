@@ -4,46 +4,41 @@
 #include "RGBController.h"
 
 SleepSet::SleepSet(QObject *parent)
-    : QObject(parent), running(false), hPowerNotify(nullptr), hWnd(nullptr)
-{
-    qDebug() << "[SleepSet] Constructor called";
-    start();
+    {
+    m_registrationHandle = 0;
 }
 
 SleepSet::~SleepSet()
 {
-    qDebug() << "[SleepSet] Destructor called";
-    //stop();
+    running = false;
+    qDebug() << "[SleepSet] Start called";
+    start();
 }
 
-LRESULT CALLBACK SleepSet::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    if (uMsg == WM_POWERBROADCAST)
-    {
-        if (wParam == PBT_POWERSETTINGCHANGE)
-        {
-            POWERBROADCAST_SETTING* pbs = reinterpret_cast<POWERBROADCAST_SETTING*>(lParam);
-            SleepSet* self = reinterpret_cast<SleepSet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+HWND SleepSet::s_notifyHwnd = nullptr;
 
-            if (pbs->PowerSetting == GUID_CONSOLE_DISPLAY_STATE)
-            {
-                DWORD value = *reinterpret_cast<DWORD*>(pbs->Data);
-                if (value == 0)
-                {
-                    // Display off (sleep)
-                    qDebug() << "[PowerSettingCallback] Display off (sleep)";
-                    self->handleSleepAction();
-                }
-                else if (value == 1)
-                {
-                    // Display on (resume from sleep)
-                    qDebug() << "[PowerSettingCallback] Display on (resume from sleep)";
-                    self->handleWakeAction();
-                }
-            }
-        }
+ULONG SleepSet::PowerCheck(PVOID Context, ULONG Type, PVOID Setting)
+{
+    SleepSet* self = reinterpret_cast<SleepSet*>(Context);
+    QString debugMessage = QString("[PowerTools] PChanged to type %1").arg(Type);
+    qDebug() << debugMessage;
+
+    switch (Type)
+    {
+    case PBT_APMSUSPEND:
+        qDebug() << "[PowerTools] System is entering sleep (APMSUSPEND)";
+        self->handleSleepAction();
+        break;
+    case PBT_APMRESUMEAUTOMATIC:
+        qDebug() << "[PowerTools] System has resumed from sleep (APMRESUMEAUTOMATIC)";
+        self->handleWakeAction();
+        break;
+    default:
+        qDebug() << "[PowerTools] Unhandled power event" << Type;
+        break;
     }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+
+    return 0;
 }
 
 void SleepSet::start()
@@ -53,55 +48,27 @@ void SleepSet::start()
         running = true;
         qDebug() << "[SleepSet] Starting event filter";
 
-        // Register window class
-        WNDCLASS wc = {0};
-        wc.lpfnWndProc = WndProc;
-        wc.hInstance = GetModuleHandle(nullptr);
-        wc.lpszClassName = TEXT("SleepSetWindowClass");
-
-        if (!RegisterClass(&wc))
+        HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
+        if (powrprof != NULL)
         {
-            qDebug() << "Failed to register window class. Error:" << GetLastError();
-            return;
-        }
-
-        // Create hidden message-only window
-        hWnd = CreateWindowEx(
-            0,
-            wc.lpszClassName,
-            TEXT("SleepSetWindow"),
-            0,
-            0, 0, 0, 0,
-            HWND_MESSAGE,
-            nullptr,
-            wc.hInstance,
-            nullptr
-            );
-
-        if (!hWnd)
-        {
-            qDebug() << "Failed to create message-only window. Error:" << GetLastError();
-            return;
-        }
-
-        // Store pointer to this instance
-        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
-        // Register for power setting notifications
-        hPowerNotify = RegisterPowerSettingNotification(
-            hWnd,
-            &GUID_CONSOLE_DISPLAY_STATE,
-            DEVICE_NOTIFY_WINDOW_HANDLE
-            );
-
-        if (!hPowerNotify)
-        {
-            DWORD dwError = GetLastError();
-            qDebug() << "Failed to register power setting notification. Error:" << dwError;
+            DWORD (_stdcall *PowerRegisterSuspendResumeNotification)(DWORD, HANDLE, PHPOWERNOTIFY);
+            PowerRegisterSuspendResumeNotification = (DWORD(_stdcall *)(DWORD, HANDLE, PHPOWERNOTIFY))GetProcAddress(powrprof, "PowerRegisterSuspendResumeNotification");
+            if (PowerRegisterSuspendResumeNotification)
+            {
+                static DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS powerParams = { PowerCheck, this };
+                s_notifyHwnd = GetConsoleWindow(); // Using the console window for demonstration purposes
+                PowerRegisterSuspendResumeNotification(DEVICE_NOTIFY_CALLBACK, &powerParams, &m_registrationHandle);
+                qDebug() << "[SleepSet] Successfully registered power setting notification.";
+            }
+            else
+            {
+                qDebug() << "[SleepSet] Failed to register power setting notification.";
+            }
+            FreeLibrary(powrprof);
         }
         else
         {
-            qDebug() << "Successfully registered power setting notification.";
+            qDebug() << "[SleepSet] Failed to load powrprof.dll.";
         }
     }
 }
@@ -111,19 +78,21 @@ void SleepSet::stop()
     if (running)
     {
         running = false;
-        qDebug() << "[SleepSet] Stopping event filter";
-        if (hPowerNotify)
-        {
-            UnregisterPowerSettingNotification(hPowerNotify);
-            hPowerNotify = nullptr;
-            qDebug() << "Successfully unregistered power setting notification.";
-        }
 
-        if (hWnd)
+        if (m_registrationHandle)
         {
-            DestroyWindow(hWnd);
-            hWnd = nullptr;
-            qDebug() << "Successfully destroyed message-only window.";
+            HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
+            if (powrprof != NULL)
+            {
+                DWORD (_stdcall *PowerUnregisterSuspendResumeNotification)(PHPOWERNOTIFY);
+                PowerUnregisterSuspendResumeNotification = (DWORD(_stdcall *)(PHPOWERNOTIFY))GetProcAddress(powrprof, "PowerUnregisterSuspendResumeNotification");
+                if (PowerUnregisterSuspendResumeNotification)
+                {
+                    PowerUnregisterSuspendResumeNotification(&m_registrationHandle);
+                    qDebug() << "[SleepSet] Successfully unregistered power setting notification.";
+                }
+                FreeLibrary(powrprof);
+            }
         }
     }
 }

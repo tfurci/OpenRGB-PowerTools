@@ -25,11 +25,12 @@ public:
 
 protected:
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
+    HPOWERNOTIFY m_registrationHandle;
 
 private:
     bool running;
-    HPOWERNOTIFY hPowerNotify;
-    HWND hWnd;
+    static HWND s_notifyHwnd;
+    static ULONG PowerCheck(PVOID Context, ULONG Type, PVOID Setting);
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     void handleWakeAction();  // Function to turn off LEDs
     void handleSleepAction();
