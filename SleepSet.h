@@ -5,7 +5,12 @@
 #include <QAbstractNativeEventFilter>
 #include <QDebug>
 #include <QThread>
-#include <windows.h>  // Include Windows-specific headers
+#include <windows.h>
+#include <powrprof.h>
+
+// Link with PowrProf.lib
+#pragma comment(lib, "PowrProf.lib")
+#pragma comment(lib, "User32.lib")
 
 class SleepSet : public QObject, public QAbstractNativeEventFilter
 {
@@ -23,6 +28,9 @@ protected:
 
 private:
     bool running;
+    HPOWERNOTIFY hPowerNotify;
+    HWND hWnd;
+    static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     void handleWakeAction();  // Function to turn off LEDs
     void handleSleepAction();
     void turnOffLEDs();
