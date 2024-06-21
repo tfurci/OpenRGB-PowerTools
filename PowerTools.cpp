@@ -37,7 +37,6 @@ void PowerTools::Load(bool dark_theme, ResourceManager* resource_manager_ptr)
 
     RMPointer                = resource_manager_ptr;
     DarkTheme                = dark_theme;
-    //sleepSet.start();
 }
 
 

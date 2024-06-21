@@ -12,7 +12,7 @@
 #pragma comment(lib, "PowrProf.lib")
 #pragma comment(lib, "User32.lib")
 
-class SleepSet : public QObject, public QAbstractNativeEventFilter
+class SleepSet : public QObject
 {
     Q_OBJECT
 
@@ -24,14 +24,12 @@ public:
     void stop();   // Stop the event filtering and LED update loop
 
 protected:
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
     HPOWERNOTIFY m_registrationHandle;
 
 private:
     bool running;
     static HWND s_notifyHwnd;
     static ULONG PowerCheck(PVOID Context, ULONG Type, PVOID Setting);
-    static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     void handleWakeAction();  // Function to turn off LEDs
     void handleSleepAction();
     void turnOffLEDs();

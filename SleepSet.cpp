@@ -56,7 +56,6 @@ void SleepSet::start()
             if (PowerRegisterSuspendResumeNotification)
             {
                 static DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS powerParams = { PowerCheck, this };
-                s_notifyHwnd = GetConsoleWindow(); // Using the console window for demonstration purposes
                 PowerRegisterSuspendResumeNotification(DEVICE_NOTIFY_CALLBACK, &powerParams, &m_registrationHandle);
                 qDebug() << "[SleepSet] Successfully registered power setting notification.";
             }
@@ -95,16 +94,6 @@ void SleepSet::stop()
             }
         }
     }
-}
-
-bool SleepSet::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
-{
-    Q_UNUSED(eventType);
-    Q_UNUSED(message);
-    Q_UNUSED(result);
-
-    // This method is now redundant as we're using RegisterPowerSettingNotification
-    return false;
 }
 
 QString readSettingFromQSettings(const QString& group, const QString& key)
