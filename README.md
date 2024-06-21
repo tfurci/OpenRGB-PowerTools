@@ -5,7 +5,7 @@
 To make it easy for you to get started with OpenRGB-PowerTools, here's a list of recommended steps:
 
 1. **Download PowerTools.dll**:
-    - Go to the [releases](https://github.com/yourusername/OpenRGB-PowerTools/releases) page.
+    - Go to the [releases](https://github.com/tfurci/OpenRGB-PowerTools/releases) page.
     - Download the latest `PowerTools.dll` file.
 
 2. **Install the Plugin**:
