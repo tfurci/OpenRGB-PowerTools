@@ -2,16 +2,43 @@
 #include "PowerTools.h"
 #include "ProfileManager.h"
 #include "RGBController.h"
-#include <QCoreApplication>
 
 SleepSet::SleepSet(QObject *parent)
-    : QObject(parent), running(false)
-{
+    {
+    m_registrationHandle = 0;
 }
 
 SleepSet::~SleepSet()
 {
-    stop();
+    running = false;
+    qDebug() << "[SleepSet] Start called";
+    start();
+}
+
+HWND SleepSet::s_notifyHwnd = nullptr;
+
+ULONG SleepSet::PowerCheck(PVOID Context, ULONG Type, PVOID Setting)
+{
+    SleepSet* self = reinterpret_cast<SleepSet*>(Context);
+    QString debugMessage = QString("[PowerTools] PChanged to type %1").arg(Type);
+    qDebug() << debugMessage;
+
+    switch (Type)
+    {
+    case PBT_APMSUSPEND:
+        qDebug() << "[PowerTools] System is entering sleep (APMSUSPEND)";
+        self->handleSleepAction();
+        break;
+    case PBT_APMRESUMEAUTOMATIC:
+        qDebug() << "[PowerTools] System has resumed from sleep (APMRESUMEAUTOMATIC)";
+        self->handleWakeAction();
+        break;
+    default:
+        qDebug() << "[PowerTools] Unhandled power event" << Type;
+        break;
+    }
+
+    return 0;
 }
 
 void SleepSet::start()
@@ -19,7 +46,29 @@ void SleepSet::start()
     if (!running)
     {
         running = true;
-        QCoreApplication::instance()->installNativeEventFilter(this); // Install native event filter
+        qDebug() << "[SleepSet] Starting event filter";
+
+        HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
+        if (powrprof != NULL)
+        {
+            DWORD (_stdcall *PowerRegisterSuspendResumeNotification)(DWORD, HANDLE, PHPOWERNOTIFY);
+            PowerRegisterSuspendResumeNotification = (DWORD(_stdcall *)(DWORD, HANDLE, PHPOWERNOTIFY))GetProcAddress(powrprof, "PowerRegisterSuspendResumeNotification");
+            if (PowerRegisterSuspendResumeNotification)
+            {
+                static DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS powerParams = { PowerCheck, this };
+                PowerRegisterSuspendResumeNotification(DEVICE_NOTIFY_CALLBACK, &powerParams, &m_registrationHandle);
+                qDebug() << "[SleepSet] Successfully registered power setting notification.";
+            }
+            else
+            {
+                qDebug() << "[SleepSet] Failed to register power setting notification.";
+            }
+            FreeLibrary(powrprof);
+        }
+        else
+        {
+            qDebug() << "[SleepSet] Failed to load powrprof.dll.";
+        }
     }
 }
 
@@ -28,7 +77,22 @@ void SleepSet::stop()
     if (running)
     {
         running = false;
-        QCoreApplication::instance()->removeNativeEventFilter(this); // Remove native event filter
+
+        if (m_registrationHandle)
+        {
+            HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
+            if (powrprof != NULL)
+            {
+                DWORD (_stdcall *PowerUnregisterSuspendResumeNotification)(PHPOWERNOTIFY);
+                PowerUnregisterSuspendResumeNotification = (DWORD(_stdcall *)(PHPOWERNOTIFY))GetProcAddress(powrprof, "PowerUnregisterSuspendResumeNotification");
+                if (PowerUnregisterSuspendResumeNotification)
+                {
+                    PowerUnregisterSuspendResumeNotification(&m_registrationHandle);
+                    qDebug() << "[SleepSet] Successfully unregistered power setting notification.";
+                }
+                FreeLibrary(powrprof);
+            }
+        }
     }
 }
 
@@ -49,47 +113,6 @@ QString readSettingFromQSettings(const QString& group, const QString& key)
     return value;
 }
 
-// EXAMPLE .INI
-//  [Sleep], [ReturnFromSleep], [Lock], [ReturnFromLock], [Shutdown], [MonitorShutdown], [MonitorComeback]
-//      Enabled=true
-//      Action=0
-//      Profile=OFF
-
-bool SleepSet::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
-{
-    Q_UNUSED(result);
-
-    if (eventType == "windows_generic_MSG")
-    {
-        MSG* msg = static_cast<MSG*>(message);
-        QString sleep = readSettingFromQSettings("Sleep", "Enabled");
-        QString returnfromsleep = readSettingFromQSettings("ReturnFromSleep", "Enabled");
-
-        switch (msg->message)
-        {
-        case WM_POWERBROADCAST:
-            switch (msg->wParam)
-            {
-            case PBT_APMSUSPEND:
-                qDebug() << "[PowerTools] System is about to sleep (suspend).";
-                if (sleep == "true"){
-                handleSleepAction();
-                }
-                break;
-            case PBT_APMRESUMESUSPEND:
-                qDebug() << "[PowerTools] System resumed from sleep (suspend).";
-                if (returnfromsleep == "true") {
-                handleWakeAction();
-                }
-                break;
-            }
-            break;
-        }
-    }
-
-    return false;  // Return false to allow normal event processing
-}
-
 void SleepSet::handleSleepAction()
 {
     if (!PowerTools::RMPointer) {
@@ -98,20 +121,20 @@ void SleepSet::handleSleepAction()
     }
 
     QString action = readSettingFromQSettings("Sleep", "Action");
-    //printf("[PowerTools] Sleep Action: %s\n", action.toUtf8().constData());
-
     if (action == "0")
     {
+        qDebug() << "[PowerTools] Action: Turn off LEDs";
         turnOffLEDs();
     }
     else if (action == "1")
     {
         QString profileName = readSettingFromQSettings("Sleep", "Profile");
+        qDebug() << "[PowerTools] Action: Load profile" << profileName;
         loadProfile(profileName);
     }
     else
     {
-        printf("[PowerTools] No valid action for sleep.");
+        qDebug() << "[PowerTools] No valid action for sleep.";
     }
 }
 
@@ -126,11 +149,13 @@ void SleepSet::handleWakeAction()
 
     if (action == "0")
     {
+        qDebug() << "[PowerTools] Action: Turn off LEDs";
         turnOffLEDs();
     }
     else if (action == "1")
     {
         QString profileName = readSettingFromQSettings("ReturnFromSleep", "Profile");
+        qDebug() << "[PowerTools] Action: Load profile" << profileName;
         loadProfile(profileName);
     }
     else
@@ -150,7 +175,6 @@ void SleepSet::turnOffLEDs()
     {
         controller->SetAllLEDs(ToRGBColor(0, 0, 0));  // Set LEDs to off
         controller->UpdateLEDs();  // Update LEDs
-        QThread::msleep(10);  // Delay for 10 milliseconds
         controller->UpdateLEDs();  // Update LEDs
     }
 }

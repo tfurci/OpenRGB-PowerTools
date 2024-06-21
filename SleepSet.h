@@ -5,9 +5,14 @@
 #include <QAbstractNativeEventFilter>
 #include <QDebug>
 #include <QThread>
-#include <windows.h>  // Include Windows-specific headers
+#include <windows.h>
+#include <powrprof.h>
 
-class SleepSet : public QObject, public QAbstractNativeEventFilter
+// Link with PowrProf.lib
+#pragma comment(lib, "PowrProf.lib")
+#pragma comment(lib, "User32.lib")
+
+class SleepSet : public QObject
 {
     Q_OBJECT
 
@@ -19,10 +24,12 @@ public:
     void stop();   // Stop the event filtering and LED update loop
 
 protected:
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
+    HPOWERNOTIFY m_registrationHandle;
 
 private:
     bool running;
+    static HWND s_notifyHwnd;
+    static ULONG PowerCheck(PVOID Context, ULONG Type, PVOID Setting);
     void handleWakeAction();  // Function to turn off LEDs
     void handleSleepAction();
     void turnOffLEDs();
