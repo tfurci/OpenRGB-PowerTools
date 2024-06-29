@@ -186,8 +186,10 @@ void SleepSet::turnOffLEDs()
     {
         controller->SetAllLEDs(ToRGBColor(0, 0, 0));  // Set LEDs to off
         controller->UpdateLEDs();  // Update LEDs
-        QThread::msleep(10);  // Delay for 10 milliseconds
-        controller->UpdateLEDs();  // Update LEDs
+
+        QTimer::singleShot(500, [controller]() {
+            controller->UpdateLEDs();
+        });
     }
 }
 
@@ -207,8 +209,10 @@ void SleepSet::loadProfile(const QString& profileName)
         for (RGBController* controller : PowerTools::RMPointer->GetRGBControllers())
         {
             controller->UpdateLEDs();  // Update LEDs
-            QThread::msleep(10);  // Delay for 10 milliseconds
-            controller->UpdateLEDs();  // Update LEDs
+
+            QTimer::singleShot(500, [controller]() {
+                controller->UpdateLEDs();
+            });
         }
 
         qDebug() << "[PowerTools][SleepSet] Loaded profile" << profileName << ".";

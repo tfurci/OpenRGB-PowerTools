@@ -7,6 +7,7 @@
 #include <QThread>
 #include <windows.h>
 #include <powrprof.h>
+#include <QTimer>
 
 // Link with PowrProf.lib
 #pragma comment(lib, "PowrProf.lib")
