@@ -21,3 +21,4 @@ To make it easy for you to get started with OpenRGB-PowerTools, here's a list of
 
 - **Limited Functionality**: Currently, the plugin only works for sleep and wake from sleep events.
 - **UI Elements**: Some UI elements are greyed out until the respective features are incorporated.
+- **Compatibility with Effects plugin**: Plugin wasn't tested with Effects plugin so compatibility with it is currently unknown.
