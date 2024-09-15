@@ -210,8 +210,12 @@ void SleepSet::loadProfile(const QString& profileName)
         {
             controller->UpdateLEDs();  // Update LEDs
 
-            QTimer::singleShot(500, [controller]() {
+            QTimer::singleShot(1000, [controller]() {
                 controller->UpdateLEDs();
+
+                QTimer::singleShot(500, [controller]() {
+                    controller->UpdateLEDs();
+                });
             });
         }
 
