@@ -2,15 +2,10 @@
 #include "PowerTools.h"
 #include "ProfileManager.h"
 #include "RGBController.h"
-
-SleepSet::SleepSet(QObject *parent)
-    {
-    m_registrationHandle = 0;
-}
+HPOWERNOTIFY SleepSet::m_globalRegistrationHandle = nullptr;
 
 SleepSet::~SleepSet()
 {
-    running = false;
     start();
 }
 
@@ -40,9 +35,8 @@ ULONG SleepSet::PowerCheck(PVOID Context, ULONG Type, PVOID Setting)
 
 void SleepSet::start()
 {
-    if (!running)
+    if (!m_globalRegistrationHandle) // Check if the registration handle is null
     {
-        running = true;
         qDebug() << "[PowerTools][SleepSet] Starting PowerTools";
 
         HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
@@ -53,8 +47,19 @@ void SleepSet::start()
             if (PowerRegisterSuspendResumeNotification)
             {
                 static DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS powerParams = { PowerCheck, this };
-                PowerRegisterSuspendResumeNotification(DEVICE_NOTIFY_CALLBACK, &powerParams, &m_registrationHandle);
-                qDebug() << "[PowerTools][SleepSet] Successfully registered power setting notification.";
+                DWORD result = PowerRegisterSuspendResumeNotification(DEVICE_NOTIFY_CALLBACK, &powerParams, &m_registrationHandle);
+                qDebug() << "[PowerTools][SleepSet] PowerRegisterSuspendResumeNotification result:" << result;
+
+                if (m_registrationHandle)
+                {
+                    qDebug() << "[PowerTools][SleepSet] Successfully registered power setting notification. Handle:" << m_registrationHandle;
+                    m_globalRegistrationHandle = m_registrationHandle;
+
+                }
+                else
+                {
+                    qDebug() << "[PowerTools][SleepSet] Failed to get a valid registration handle.";
+                }
             }
             else
             {
@@ -67,29 +72,53 @@ void SleepSet::start()
             qDebug() << "[PowerTools][SleepSet] Failed to load powrprof.dll.";
         }
     }
+    else
+    {
+        qDebug() << "[PowerTools][SleepSet] Already registered power setting notification.";
+    }
 }
 
 void SleepSet::stop()
 {
-    if (running)
+    qDebug() << "[PowerTools][SleepSet] Handle:" << m_globalRegistrationHandle;
+    if (m_globalRegistrationHandle) // Check if the registration handle is valid
     {
-        running = false;
+        qDebug() << "[PowerTools][SleepSet] Unregistering with handle:" << m_globalRegistrationHandle;
 
-        if (m_registrationHandle)
+        HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
+        if (powrprof != NULL)
         {
-            HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
-            if (powrprof != NULL)
+            DWORD (_stdcall *PowerUnregisterSuspendResumeNotification)(HPOWERNOTIFY);
+            PowerUnregisterSuspendResumeNotification = (DWORD(_stdcall *)(HPOWERNOTIFY))GetProcAddress(powrprof, "PowerUnregisterSuspendResumeNotification");
+            if (PowerUnregisterSuspendResumeNotification)
             {
-                DWORD (_stdcall *PowerUnregisterSuspendResumeNotification)(PHPOWERNOTIFY);
-                PowerUnregisterSuspendResumeNotification = (DWORD(_stdcall *)(PHPOWERNOTIFY))GetProcAddress(powrprof, "PowerUnregisterSuspendResumeNotification");
-                if (PowerUnregisterSuspendResumeNotification)
+                DWORD result = PowerUnregisterSuspendResumeNotification(m_globalRegistrationHandle); // Pass the handle directly
+                qDebug() << "[PowerTools][SleepSet] PowerUnregisterSuspendResumeNotification result:" << result;
+
+                if (result == 0)
                 {
-                    PowerUnregisterSuspendResumeNotification(&m_registrationHandle);
+                    m_globalRegistrationHandle = nullptr; // Reset the handle to null
                     qDebug() << "[PowerTools][SleepSet] Successfully unregistered power setting notification.";
                 }
-                FreeLibrary(powrprof);
+                else
+                {
+                    qDebug() << "[PowerTools][SleepSet] Failed to unregister power setting notification. Error:" << result;
+                }
             }
+            else
+            {
+                qDebug() << "[PowerTools][SleepSet] Failed to find PowerUnregisterSuspendResumeNotification.";
+            }
+            FreeLibrary(powrprof);
         }
+        else
+        {
+            qDebug() << "[PowerTools][SleepSet] Failed to load powrprof.dll for unregistration.";
+        }
+    }
+    else
+    {
+        qDebug() << "[PowerTools][SleepSet] No power setting notification to unregister.";
     }
 }
 

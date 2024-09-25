@@ -18,17 +18,15 @@ class SleepSet : public QObject
     Q_OBJECT
 
 public:
-    SleepSet(QObject *parent = nullptr);
     virtual ~SleepSet();
 
     void start();  // Start the event filtering and LED update loop
     void stop();   // Stop the event filtering and LED update loop
 
-protected:
-    HPOWERNOTIFY m_registrationHandle;
+    static HPOWERNOTIFY m_globalRegistrationHandle; // Static member variable
 
 private:
-    bool running;
+    HPOWERNOTIFY m_registrationHandle = nullptr;  // Initialize to nullptr
     static ULONG PowerCheck(PVOID Context, ULONG Type, PVOID Setting);
     void handleWakeAction();  // Function to turn off LEDs
     void handleSleepAction();
