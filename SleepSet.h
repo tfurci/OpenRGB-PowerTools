@@ -26,6 +26,9 @@ public:
     static HPOWERNOTIFY m_globalRegistrationHandle; // Static member variable
 
 private:
+    void registerpowrprof();
+    void unregisterpowrprof();
+
     HPOWERNOTIFY m_registrationHandle = nullptr;  // Initialize to nullptr
     static ULONG PowerCheck(PVOID Context, ULONG Type, PVOID Setting);
     void handleWakeAction();  // Function to turn off LEDs

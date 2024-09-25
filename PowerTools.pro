@@ -17,7 +17,7 @@ unix:!macx {
 #-----------------------------------------------------------------------------------------------#
 # Application Configuration                                                                     #
 #-----------------------------------------------------------------------------------------------#
-PLUGIN_VERSION     = 1.2
+PLUGIN_VERSION     = 1.3
 
 #-----------------------------------------------------------------------------------------------#
 # Automatically generated build information                                                     #
@@ -55,11 +55,13 @@ HEADERS +=                                                                      
     OpenRGB/OpenRGBPluginInterface.h                                                            \
     OpenRGB/ResourceManager.h                                                                   \
     PowerTools.h                                                                       \
-    SleepSet.h
+    SleepSet.h \
+    actionmanager.h
 
 SOURCES +=                                                                                      \
     PowerTools.cpp                                                                     \
-    SleepSet.cpp
+    SleepSet.cpp \
+    actionmanager.cpp
 
 #-------------------------------------------------------------------#
 # Windows GitLab CI Configuration                                   #
