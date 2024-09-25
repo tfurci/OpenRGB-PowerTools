@@ -79,6 +79,68 @@ void SleepSet::handleWakeAction()
     }
 }
 
+void SleepSet::handleLockAction()
+{
+    if (!PowerTools::RMPointer) {
+        qDebug() << "[PowerTools][SleepSet] ResourceManager pointer is null.";
+        return;
+    }
+
+    QString enabled = readSettingFromQSettings("Lock", "Enabled");
+    if (enabled == "false")
+    {
+        return;
+    }
+
+    QString action = readSettingFromQSettings("Lock", "Action");
+    if (action == "0")
+    {
+        qDebug() << "[PowerTools][SleepSet] Action: Turn off LEDs";
+        turnOffLEDs();
+    }
+    else if (action == "1")
+    {
+        QString profileName = readSettingFromQSettings("Lock", "Profile");
+        qDebug() << "[PowerTools][SleepSet] Action: Load profile" << profileName;
+        loadProfile(profileName);
+    }
+    else
+    {
+        qDebug() << "[PowerTools][SleepSet] No valid action for wake.";
+    }
+}
+
+void SleepSet::handleUnlockAction()
+{
+    if (!PowerTools::RMPointer) {
+        qDebug() << "[PowerTools][SleepSet] ResourceManager pointer is null.";
+        return;
+    }
+
+    QString enabled = readSettingFromQSettings("ReturnFromLock", "Enabled");
+    if (enabled == "false")
+    {
+        return;
+    }
+
+    QString action = readSettingFromQSettings("ReturnFromLock", "Action");
+    if (action == "0")
+    {
+        qDebug() << "[PowerTools][SleepSet] Action: Turn off LEDs";
+        turnOffLEDs();
+    }
+    else if (action == "1")
+    {
+        QString profileName = readSettingFromQSettings("ReturnFromLock", "Profile");
+        qDebug() << "[PowerTools][SleepSet] Action: Load profile" << profileName;
+        loadProfile(profileName);
+    }
+    else
+    {
+        qDebug() << "[PowerTools][SleepSet] No valid action for wake.";
+    }
+}
+
 void SleepSet::turnOffLEDs()
 {
     if (!PowerTools::RMPointer) {

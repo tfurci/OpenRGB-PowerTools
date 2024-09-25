@@ -26,11 +26,18 @@ public:
     static HPOWERNOTIFY m_globalRegistrationHandle; // Static member variable
 
 private:
+    void unregisterWindowClass();
+    void createHiddenWindow();
+    static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Declaration
     void registerpowrprof();
     void unregisterpowrprof();
 
     HPOWERNOTIFY m_registrationHandle = nullptr;  // Initialize to nullptr
+    static HWND m_hiddenWindow; // Declaration of hidden window handle
     static ULONG PowerCheck(PVOID Context, ULONG Type, PVOID Setting);
+
+    void handleUnlockAction();
+    void handleLockAction();
     void handleWakeAction();  // Function to turn off LEDs
     void handleSleepAction();
     void turnOffLEDs();

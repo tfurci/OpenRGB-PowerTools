@@ -2,7 +2,15 @@
 #include "PowerTools.h"
 #include "ProfileManager.h"
 #include "RGBController.h"
+
+#include <windows.h>
+#include <Wtsapi32.h>
+#pragma comment(lib, "Wtsapi32.lib")
+
+
 HPOWERNOTIFY SleepSet::m_globalRegistrationHandle = nullptr;
+HWND SleepSet::m_hiddenWindow = nullptr; // Definition of the static hidden window handle
+
 
 SleepSet::~SleepSet()
 {
@@ -12,11 +20,13 @@ SleepSet::~SleepSet()
 void SleepSet::start()
 {
     registerpowrprof();
+    createHiddenWindow();
 }
 
 void SleepSet::stop()
 {
     unregisterpowrprof();
+    unregisterWindowClass();
 }
 
 ULONG SleepSet::PowerCheck(PVOID Context, ULONG Type, PVOID Setting)
@@ -129,5 +139,101 @@ void SleepSet::unregisterpowrprof()
     else
     {
         qDebug() << "[PowerTools][SleepSet] No power setting notification to unregister.";
+    }
+}
+
+void SleepSet::createHiddenWindow()
+{
+
+    m_hiddenWindow = FindWindow(TEXT("PowerToolsWCN"), NULL);
+    if (m_hiddenWindow)
+    {
+        // If the window is found, we assume it already exists
+        qDebug() << "[PowerTools][SleepSet] Hidden window already exists.";
+
+        // You can also re-register for session notifications if needed
+        WTSRegisterSessionNotification(m_hiddenWindow, NOTIFY_FOR_ALL_SESSIONS);
+        return; // Exit if the window already exists
+    }
+
+    // Register the window class
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = SleepSet::WndProc; // Set the window procedure
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = TEXT("PowerToolsWCN");
+
+    RegisterClass(&wc);
+
+    // Create the hidden window
+    m_hiddenWindow = CreateWindowEx(
+        WS_EX_TOOLWINDOW, // Style: Tool window
+        wc.lpszClassName,
+        TEXT("PowerToolsWCN"), // Window name
+        0, // No visible style
+        0, 0, 0, 0, // No size or position
+        NULL, // No parent
+        NULL, // No menu
+        wc.hInstance,
+        this // Pass `this` as the window user data
+        );
+
+    if (m_hiddenWindow)
+    {
+        // Register for session notifications
+        WTSRegisterSessionNotification(m_hiddenWindow, NOTIFY_FOR_ALL_SESSIONS);
+        qDebug() << "[PowerTools][SleepSet] Hidden window created and registered for session notifications.";
+    }
+    else
+    {
+        qDebug() << "[PowerTools][SleepSet] Failed to create hidden window.";
+    }
+}
+
+LRESULT CALLBACK SleepSet::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    SleepSet* self = reinterpret_cast<SleepSet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+    switch (uMsg)
+    {
+    case WM_WTSSESSION_CHANGE:
+        if (wParam == WTS_SESSION_LOCK)
+        {
+            QString state = "locked";
+            qDebug() << "[PowerTools][SleepSet] Workstation is" << state;
+            self->handleLockAction(); // Separate lock action
+        }
+        else if (wParam == WTS_SESSION_UNLOCK)
+        {
+            QString state = "unlocked";
+            qDebug() << "[PowerTools][SleepSet] Workstation is" << state;
+            self->handleUnlockAction(); // Separate unlock action
+        }
+        break;
+    case WM_DESTROY:
+        WTSUnRegisterSessionNotification(hwnd); // Unregister session notifications
+        break;
+    default:
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    return 0;
+}
+
+void SleepSet::unregisterWindowClass()
+{
+    if (m_hiddenWindow) // Check if the hidden window exists
+    {
+        qDebug() << "[PowerTools][SleepSet] Unregistering session notifications.";
+
+        // Unregister WTS session notifications
+        WTSUnRegisterSessionNotification(m_hiddenWindow);
+
+        // Destroy the window
+        DestroyWindow(m_hiddenWindow);
+        m_hiddenWindow = nullptr; // Reset the handle to null
+        qDebug() << "[PowerTools][SleepSet] Hidden window destroyed and notifications unregistered.";
+    }
+    else
+    {
+        qDebug() << "[PowerTools][SleepSet] No hidden window to unregister.";
     }
 }
