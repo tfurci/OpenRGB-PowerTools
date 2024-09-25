@@ -32,8 +32,6 @@ class PowerTools : public QObject, public OpenRGBPluginInterface
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:
-    PowerTools();
-    ~PowerTools();
 
     OpenRGBPluginInfo   GetPluginInfo() override;
     unsigned int        GetPluginAPIVersion() override;

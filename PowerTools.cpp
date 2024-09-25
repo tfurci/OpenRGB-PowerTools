@@ -96,16 +96,6 @@ void PowerTools::Unload()
     sleepSet.stop();
 }
 
-PowerTools::PowerTools()
-{
-    printf("[PowerTools] Constructor.\n");
-}
-
-PowerTools::~PowerTools()
-{
-     printf("[PowerTools] Time to free some memory.\n");
-}
-
 void PowerTools::LoadSettings(Ui::PowerTools& ui)
 {
     QString settingsFilePath = QDir::homePath() + "/AppData/Roaming/OpenRGB/powertools.ini";

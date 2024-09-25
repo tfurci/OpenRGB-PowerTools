@@ -29,7 +29,6 @@ protected:
 
 private:
     bool running;
-    static HWND s_notifyHwnd;
     static ULONG PowerCheck(PVOID Context, ULONG Type, PVOID Setting);
     void handleWakeAction();  // Function to turn off LEDs
     void handleSleepAction();

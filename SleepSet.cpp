@@ -11,11 +11,8 @@ SleepSet::SleepSet(QObject *parent)
 SleepSet::~SleepSet()
 {
     running = false;
-    qDebug() << "[PowerTools][SleepSet] Start called";
     start();
 }
-
-HWND SleepSet::s_notifyHwnd = nullptr;
 
 ULONG SleepSet::PowerCheck(PVOID Context, ULONG Type, PVOID Setting)
 {
@@ -46,7 +43,7 @@ void SleepSet::start()
     if (!running)
     {
         running = true;
-        qDebug() << "[PowerTools][SleepSet] Starting event filter";
+        qDebug() << "[PowerTools][SleepSet] Starting PowerTools";
 
         HMODULE powrprof = LoadLibrary(TEXT("powrprof.dll"));
         if (powrprof != NULL)
@@ -187,9 +184,8 @@ void SleepSet::turnOffLEDs()
         controller->SetAllLEDs(ToRGBColor(0, 0, 0));  // Set LEDs to off
         controller->UpdateLEDs();  // Update LEDs
 
-        QTimer::singleShot(500, [controller]() {
-            controller->UpdateLEDs();
-        });
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        controller->UpdateLEDs();
     }
 }
 
@@ -210,13 +206,10 @@ void SleepSet::loadProfile(const QString& profileName)
         {
             controller->UpdateLEDs();  // Update LEDs
 
-            QTimer::singleShot(1000, [controller]() {
-                controller->UpdateLEDs();
-
-                QTimer::singleShot(500, [controller]() {
-                    controller->UpdateLEDs();
-                });
-            });
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            controller->UpdateLEDs();
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            controller->UpdateLEDs();
         }
 
         qDebug() << "[PowerTools][SleepSet] Loaded profile" << profileName << ".";
